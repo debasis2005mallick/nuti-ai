@@ -12,7 +12,7 @@ import { DEMO_MEAL_PLATES, NUTRITION_DATABASE } from '../config.js';
 
 export class ScannerView {
   static currentScanResult = null;
-  static currentImageSrc = "assets/demo/indian_thali.jpg";
+  static currentImageSrc = DEMO_MEAL_PLATES.thali.image;
 
   static render(container) {
     const state = store.getState();
@@ -90,8 +90,24 @@ export class ScannerView {
                 </button>
               </div>
 
+              <!-- Quick Plate Customizer Chips -->
+              <div class="scanner-quick-add-row mt-2">
+                <span class="quick-add-lbl">Tap to add dish:</span>
+                <div class="quick-add-chips-wrap">
+                  <button class="btn-quick-chip" data-food="dal">+ Dal</button>
+                  <button class="btn-quick-chip" data-food="rice">+ Rice</button>
+                  <button class="btn-quick-chip" data-food="roti">+ 2 Roti</button>
+                  <button class="btn-quick-chip" data-food="paneer">+ Paneer</button>
+                  <button class="btn-quick-chip" data-food="eggs_boiled">+ Eggs</button>
+                  <button class="btn-quick-chip" data-food="maggi">+ Maggi</button>
+                  <button class="btn-quick-chip" data-food="dosa">+ Dosa</button>
+                  <button class="btn-quick-chip" data-food="curd">+ Curd</button>
+                  <button class="btn-quick-chip" data-food="salad">+ Salad</button>
+                </div>
+              </div>
+
               <div class="dropzone-hint">
-                <span>💡 Supported formats: JPG, PNG, WebP • Large images compressed automatically</span>
+                <span>💡 Supported formats: JPG, PNG, WebP • Tap any dish above to customize your plate in 1-click</span>
               </div>
             </div>
 
@@ -317,6 +333,29 @@ export class ScannerView {
       });
     });
 
+    // Quick Add Food Chips
+    container.querySelectorAll(".btn-quick-chip").forEach(chip => {
+      chip.addEventListener("click", (e) => {
+        const foodKey = e.currentTarget.dataset.food;
+        const dbEntry = NUTRITION_DATABASE[foodKey];
+        if (dbEntry) {
+          if (!this.currentScanResult || this.currentScanResult.isNonFood) {
+            this.currentScanResult = { foods: [] };
+          }
+          this.currentScanResult.foods = this.currentScanResult.foods || [];
+          this.currentScanResult.foods.push({
+            id: foodKey,
+            name: dbEntry.name,
+            portion: dbEntry.defaultServing || 100,
+            unit: dbEntry.servingUnit || "g",
+            confidence: 0.98
+          });
+          this.recalculateAndRefresh(container);
+          Helpers.showToast(`Added ${dbEntry.name} to plate! 🥗`, "success");
+        }
+      });
+    });
+
     // File Input Upload
     const fileInput = container.querySelector("#food-file-input");
     fileInput?.addEventListener("change", async (e) => {
@@ -326,7 +365,7 @@ export class ScannerView {
         this.currentImageSrc = compressed;
         container.querySelector("#scanned-plate-img").src = compressed;
 
-        await this.runAiScan(compressed, container);
+        await this.runAiScan(compressed, container, file.name);
       }
     });
 
@@ -465,7 +504,7 @@ export class ScannerView {
     });
   }
 
-  static async runAiScan(imageSrc, container) {
+  static async runAiScan(imageSrc, container, fileName = "") {
     const overlay = container.querySelector("#scanner-progress-overlay");
     const titleEl = container.querySelector("#scanner-progress-title");
     const subEl = container.querySelector("#scanner-progress-sub");
@@ -478,13 +517,14 @@ export class ScannerView {
       state.profile.geminiApiKey,
       (status, pct) => {
         if (titleEl) titleEl.innerText = `${status} (${pct}%)`;
-      }
+      },
+      fileName
     );
 
     overlay.classList.add("hidden");
     this.currentScanResult = result;
     this.render(container);
-    Helpers.showToast("Plate analyzed successfully!", "success");
+    Helpers.showToast(result.isNonFood ? "No food detected in image." : "Plate analyzed successfully!", result.isNonFood ? "error" : "success");
   }
 
   static loadDemoPreset(demoKey, container) {
