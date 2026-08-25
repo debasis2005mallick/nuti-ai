@@ -61,7 +61,22 @@ export class ChatBotView {
     this.scrollToBottom(container);
   }
 
-    const hasMealMention = isBot && (m.text.includes("Recommended") || m.text.includes("Protein") || m.text.includes("Snack") || m.text.includes("Plan"));
+  static renderMessage(m) {
+    const isBot = m.sender === "bot";
+    // Basic Markdown-style formatting for bold & line breaks
+    let formattedText = (m.text || "")
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\n\n/g, '<br/><br/>')
+      .replace(/\n/g, '<br/>');
+
+    const hasMealMention = isBot && (
+      m.text.includes("Recommended") ||
+      m.text.includes("Protein") ||
+      m.text.includes("Snack") ||
+      m.text.includes("Plan") ||
+      m.text.includes("budget") ||
+      m.text.includes("mess")
+    );
 
     return `
       <div class="chat-message-bubble ${isBot ? 'bot-bubble' : 'user-bubble'} animate-slide-up">
@@ -69,13 +84,13 @@ export class ChatBotView {
         <div class="bubble-content">
           <div class="bubble-meta">
             <span class="bubble-sender">${isBot ? 'NutriBot AI' : 'You'}</span>
-            <span class="bubble-time">${m.time}</span>
+            <span class="bubble-time">${m.time || ''}</span>
           </div>
           <div class="bubble-text">${formattedText}</div>
           ${hasMealMention ? `
             <div class="chat-bubble-actions mt-2">
-              <button class="btn btn-xs btn-primary btn-chat-action-plan" data-tab="planner">🍽️ View Optimized Combos</button>
-              <button class="btn btn-xs btn-secondary btn-chat-action-streak" data-tab="streaks">💧 Log Water (+250ml)</button>
+              <button class="btn btn-xs btn-primary btn-chat-action-plan">🍽️ View Optimized Combos</button>
+              <button class="btn btn-xs btn-secondary btn-chat-action-streak">💧 Log Water (+250ml)</button>
             </div>
           ` : ''}
         </div>
@@ -88,10 +103,10 @@ export class ChatBotView {
     const sendBtn = container.querySelector("#btn-send-chat");
 
     const doSend = async (questionText) => {
-      const q = questionText || input.value.trim();
+      const q = questionText || input?.value?.trim();
       if (!q) return;
 
-      input.value = "";
+      if (input) input.value = "";
       store.addChatMessage("user", q);
       this.refreshMessages(container);
 
@@ -100,7 +115,7 @@ export class ChatBotView {
       const typingEl = document.createElement("div");
       typingEl.className = "chat-message-bubble bot-bubble typing-indicator-bubble";
       typingEl.innerHTML = `<div class="bubble-avatar">🤖</div><div class="bubble-content"><div class="typing-dots"><span></span><span></span><span></span></div></div>`;
-      messagesBox.appendChild(typingEl);
+      messagesBox?.appendChild(typingEl);
       this.scrollToBottom(container);
 
       const state = store.getState();
@@ -118,8 +133,7 @@ export class ChatBotView {
 
     container.querySelectorAll(".chip-prompt-btn").forEach(chip => {
       chip.addEventListener("click", (e) => {
-        const q = e.currentTarget.dataset.q;
-        doSend(q);
+        doSend(e.currentTarget.dataset.q);
       });
     });
 
@@ -128,9 +142,7 @@ export class ChatBotView {
 
   static attachBubbleActions(container) {
     container.querySelectorAll(".btn-chat-action-plan").forEach(btn => {
-      btn.addEventListener("click", () => {
-        store.setTab("planner");
-      });
+      btn.addEventListener("click", () => store.setTab("planner"));
     });
 
     container.querySelectorAll(".btn-chat-action-streak").forEach(btn => {
@@ -152,8 +164,6 @@ export class ChatBotView {
 
   static scrollToBottom(container) {
     const box = container.querySelector("#chat-messages-box");
-    if (box) {
-      box.scrollTop = box.scrollHeight;
-    }
+    if (box) box.scrollTop = box.scrollHeight;
   }
 }
