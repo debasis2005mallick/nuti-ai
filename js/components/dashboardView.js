@@ -6,13 +6,19 @@ import { store } from '../state.js';
 import { ChartUtils } from '../utils/charts.js';
 import { MealPlanner } from '../services/mealPlanner.js';
 import { StreakService } from '../services/streakService.js';
+import { Helpers } from '../utils/helpers.js';
 
 export class DashboardView {
   static render(container) {
-    const state = store.getState();
-    const profile = state.profile;
-    const today = state.today;
+    const state = store.getState() || {};
+    const profile = state.profile || {};
+    const today = state.today || {};
     const streakInfo = StreakService.getStreakOverview(state);
+
+    const goalStr = (profile.goal || "balanced").replace('-', ' ').toUpperCase();
+    const collegeStr = profile.college || "Engineering Hostel A";
+    const selectedDay = state.selectedHostelDay || "Monday";
+    const menuLunch = (state.hostelMenu && state.hostelMenu[selectedDay]?.lunch) || ["Rice", "Dal", "2 Roti", "Curd", "Salad"];
 
     const calTarget = profile.dailyCaloriesTarget || 2200;
     const calCurrent = today.consumedCalories || 1380;
@@ -41,8 +47,8 @@ export class DashboardView {
             </div>
             <h1 class="hero-title">Good Day, ${profile.name || "Student"}! 👋</h1>
             <p class="hero-subtitle">
-              Goal: <strong class="text-accent">${profile.goal.replace('-', ' ').toUpperCase()}</strong> • 
-              Mess: <strong>${profile.college}</strong>
+              Goal: <strong class="text-accent">${goalStr}</strong> • 
+              Mess: <strong>${collegeStr}</strong>
             </p>
           </div>
           <div class="hero-right">
@@ -84,9 +90,9 @@ export class DashboardView {
 
             <!-- Step B: Today's Available Mess Dishes -->
             <div class="wizard-input-col">
-              <label class="wizard-lbl">2. Today's Hostel Mess Dishes (${state.selectedHostelDay}):</label>
+              <label class="wizard-lbl">2. Today's Hostel Mess Dishes (${selectedDay}):</label>
               <div class="wizard-dishes-chips" id="wizard-today-dishes-box">
-                ${(state.hostelMenu[state.selectedHostelDay]?.lunch || ["Rice", "Dal", "2 Roti", "Curd", "Salad"]).map(d => `
+                ${menuLunch.map(d => `
                   <span class="wizard-dish-chip">${d}</span>
                 `).join('')}
               </div>

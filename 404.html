@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Redirecting — NutriScan AI</title>
+  <script>
+    // GitHub Pages SPA redirect: preserves paths and sends them to index.html hash
+    var path = window.location.pathname;
+    var repoName = path.split('/')[1] || '';
+    window.location.replace('/' + (repoName ? repoName + '/' : '') + 'index.html');
+  </script>
+</head>
+<body style="background: #080C14; color: #fff; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0;">
+  <div style="text-align: center;">
+    <h2>Redirecting to NutriScan AI...</h2>
+    <p><a href="index.html" style="color: #10B981;">Click here if not redirected automatically</a></p>
+  </div>
+</body>
+</html>

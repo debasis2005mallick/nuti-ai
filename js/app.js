@@ -42,10 +42,22 @@ class NutriScanApp {
       store.setTab(state.activeTab === "chat" ? "dashboard" : "chat");
     });
 
-    // Initial View Render
-    const initialState = store.getState();
-    this.renderActiveTab(initialState.activeTab);
-    this.updateActiveNavIndicators(initialState.activeTab);
+    // Initial View Render & Hash Router setup
+    const hashTab = window.location.hash.replace(/^#\/?/, "");
+    const validTabs = ["dashboard", "scanner", "hostel", "planner", "streaks", "insights", "chat", "profile"];
+    const initialTab = validTabs.includes(hashTab) ? hashTab : (store.getState().activeTab || "dashboard");
+    
+    store.setTab(initialTab);
+    this.renderActiveTab(initialTab);
+    this.updateActiveNavIndicators(initialTab);
+
+    // Listen to hash changes for browser back/forward & direct links
+    window.addEventListener("hashchange", () => {
+      const currentHash = window.location.hash.replace(/^#\/?/, "");
+      if (validTabs.includes(currentHash) && currentHash !== store.getState().activeTab) {
+        store.setTab(currentHash);
+      }
+    });
 
     // Global helper for demo presets
     window.nutriScanApp = this;
@@ -53,6 +65,10 @@ class NutriScanApp {
 
   handleStateChange(state, event, payload) {
     if (event === "tab_changed") {
+      // Sync URL hash seamlessly
+      if (window.location.hash !== `#${payload}`) {
+        history.replaceState(null, "", `#${payload}`);
+      }
       this.renderActiveTab(payload);
       this.updateActiveNavIndicators(payload);
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -72,33 +88,47 @@ class NutriScanApp {
   renderActiveTab(tab) {
     if (!this.mainContainer) return;
 
-    switch (tab) {
-      case "dashboard":
-        DashboardView.render(this.mainContainer);
-        break;
-      case "scanner":
-        ScannerView.render(this.mainContainer);
-        break;
-      case "hostel":
-        HostelModeView.render(this.mainContainer);
-        break;
-      case "planner":
-        MealPlannerView.render(this.mainContainer);
-        break;
-      case "streaks":
-        StreaksView.render(this.mainContainer);
-        break;
-      case "insights":
-        InsightsView.render(this.mainContainer);
-        break;
-      case "chat":
-        ChatBotView.render(this.mainContainer);
-        break;
-      case "profile":
-        ProfileView.render(this.mainContainer);
-        break;
-      default:
-        DashboardView.render(this.mainContainer);
+    try {
+      switch (tab) {
+        case "dashboard":
+          DashboardView.render(this.mainContainer);
+          break;
+        case "scanner":
+          ScannerView.render(this.mainContainer);
+          break;
+        case "hostel":
+          HostelModeView.render(this.mainContainer);
+          break;
+        case "planner":
+          MealPlannerView.render(this.mainContainer);
+          break;
+        case "streaks":
+          StreaksView.render(this.mainContainer);
+          break;
+        case "insights":
+          InsightsView.render(this.mainContainer);
+          break;
+        case "chat":
+          ChatBotView.render(this.mainContainer);
+          break;
+        case "profile":
+          ProfileView.render(this.mainContainer);
+          break;
+        default:
+          DashboardView.render(this.mainContainer);
+      }
+    } catch (renderError) {
+      console.error(`Error rendering view '${tab}':`, renderError);
+      this.mainContainer.innerHTML = `
+        <div class="content-card glassmorphism p-4 text-center animate-fade-in" style="max-width: 600px; margin: 40px auto;">
+          <span style="font-size: 3rem;">⚠️</span>
+          <h3 class="mt-2">View Loading Recovered</h3>
+          <p class="text-muted mt-1">There was a temporary glitch rendering this view. Your data is completely safe.</p>
+          <button class="btn btn-primary mt-3" onclick="location.hash='#dashboard'; location.reload();">
+            🏠 Return to Dashboard
+          </button>
+        </div>
+      `;
     }
   }
 
@@ -115,3 +145,4 @@ class NutriScanApp {
 document.addEventListener("DOMContentLoaded", () => {
   new NutriScanApp();
 });
+
