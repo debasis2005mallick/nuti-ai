@@ -1,0 +1,409 @@
+/* ==========================================================================
+   NutriScan AI - Rock-Solid Mobile Interface & Touch Layouts
+   Active on Viewports <= 1024px
+   ========================================================================== */
+
+/* Mobile Header (Hidden on Desktop) */
+.mobile-top-bar {
+  display: none;
+}
+
+/* Mobile Bottom Navigation (Hidden on Desktop) */
+.mobile-bottom-nav {
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  /* Prevent horizontal bleed */
+  html, body {
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+  }
+
+  .app-shell {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+  }
+
+  /* Hide Desktop Sidebar */
+  .sidebar-nav {
+    display: none !important;
+  }
+
+  /* Full Width Main Area with generous bottom padding so bottom nav never overlaps */
+  .main-viewport {
+    width: 100% !important;
+    max-width: 100vw !important;
+    box-sizing: border-box !important;
+    padding: 14px 14px 120px 14px !important;
+    margin: 0 !important;
+  }
+
+  /* Show Mobile Top Bar */
+  .mobile-top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: rgba(11, 16, 26, 0.95);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border-bottom: 1px solid var(--border-subtle);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
+
+  .mobile-brand-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .mobile-brand-title {
+    font-size: 1.125rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #FFFFFF, var(--color-emerald));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .mobile-top-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .mobile-top-btn {
+    padding: 6px 10px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-pill);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-main);
+  }
+
+  /* Show Fixed Mobile Bottom Navigation Bar (5 Core Touch Actions) */
+  .mobile-bottom-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background: rgba(11, 16, 26, 0.96);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid var(--border-subtle);
+    z-index: 9500;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+  }
+
+  .mobile-nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    height: 100%;
+    color: var(--text-dim);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    transition: color 0.2s ease, transform 0.15s ease;
+  }
+
+  .mobile-nav-item .nav-icon {
+    font-size: 1.25rem;
+    line-height: 1;
+  }
+
+  .mobile-nav-item.nav-active {
+    color: var(--color-emerald);
+    transform: translateY(-2px);
+  }
+
+  .mobile-nav-item.nav-active .nav-icon {
+    filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.6));
+  }
+
+  /* Center Floating Scanner Button in Bottom Nav */
+  .mobile-nav-scanner-btn {
+    position: relative;
+    top: -14px;
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--color-emerald), var(--color-cyan));
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 25px rgba(16, 185, 129, 0.6);
+    border: 3px solid var(--bg-base);
+  }
+
+  .mobile-nav-scanner-btn .nav-icon {
+    font-size: 1.4rem;
+  }
+
+  .mobile-nav-scanner-btn span:last-child {
+    font-size: 0.625rem;
+  }
+
+  /* Universal Mobile Card & Container Fixes */
+  .content-card,
+  .dashboard-hero-card,
+  .hostel-budget-wizard-card,
+  .score-card,
+  .macros-banner-card,
+  .mess-schedule-card,
+  .what-to-eat-hero-box,
+  .planner-toolbar,
+  .calendar-card,
+  .hydration-card,
+  .badges-showcase-card,
+  .val-prop-strip,
+  .demo-quick-bar {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 16px !important;
+    border-radius: var(--radius-md) !important;
+    overflow: hidden !important;
+  }
+
+  /* Dashboard Hero Mobile */
+  .dashboard-hero-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .hero-title {
+    font-size: 1.5rem !important;
+  }
+
+  .hero-right {
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+
+  .hero-right .btn {
+    width: 100% !important;
+    font-size: 0.875rem !important;
+    padding: 12px !important;
+  }
+
+  /* Metrics Grid (2x2 Compact & Clean) */
+  .metrics-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+    margin-bottom: 16px !important;
+  }
+
+  .metric-card {
+    padding: 12px !important;
+    border-radius: var(--radius-sm) !important;
+  }
+
+  .metric-icon-wrap {
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 1rem !important;
+  }
+
+  .metric-label {
+    font-size: 0.8125rem !important;
+  }
+
+  .metric-val-current {
+    font-size: 1.2rem !important;
+  }
+
+  .metric-val-target {
+    font-size: 0.6875rem !important;
+  }
+
+  /* Stack all 2-col and 3-col layouts into 1 column */
+  .dashboard-split-grid,
+  .scanner-split-grid,
+  .streaks-split-grid,
+  .decision-body-grid,
+  .profile-form-grid,
+  .wizard-inputs-grid,
+  .combos-comparison-grid,
+  .swaps-grid,
+  .val-prop-strip,
+  .insights-dual-col {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 14px !important;
+  }
+
+  /* Budget Wizard Mobile */
+  .wizard-heading {
+    font-size: 1.125rem !important;
+  }
+
+  .budget-pills-row {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+  }
+
+  .budget-pill-btn {
+    text-align: center !important;
+    padding: 10px !important;
+  }
+
+  /* Scanner Mobile */
+  .plate-preview-box {
+    height: 220px !important;
+  }
+
+  .scanner-controls-row {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+
+  .macros-banner-card {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+  }
+
+  .macro-stats-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+
+  .macro-stat-box {
+    padding: 8px 4px !important;
+  }
+
+  .stat-val {
+    font-size: 1rem !important;
+  }
+
+  /* Table Responsive Scrolling */
+  .table-responsive {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    display: block !important;
+  }
+
+  .food-items-table, .weekly-plan-table, .value-table {
+    min-width: 480px !important;
+  }
+
+  /* Hostel Mode Mobile */
+  .day-tabs-scroll-row {
+    display: flex !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    gap: 6px !important;
+    padding-bottom: 6px !important;
+  }
+
+  .day-tab-btn {
+    min-width: 64px !important;
+    padding: 10px 6px !important;
+  }
+
+  .mess-meals-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 14px !important;
+  }
+
+  /* Streaks Mobile */
+  .streaks-counter-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+
+  .streak-counter-card {
+    padding: 16px !important;
+  }
+
+  .streak-count-number {
+    font-size: 2rem !important;
+  }
+
+  .days-calendar-row {
+    display: grid !important;
+    grid-template-columns: repeat(7, 1fr) !important;
+    gap: 4px !important;
+  }
+
+  .calendar-day-box {
+    padding: 8px 2px !important;
+  }
+
+  .cal-day-abbr {
+    font-size: 0.6875rem !important;
+  }
+
+  .hydration-body-row {
+    flex-direction: column !important;
+    text-align: center !important;
+  }
+
+  .badges-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+
+  /* Chat Mobile View */
+  .chat-main-card {
+    height: calc(100vh - 170px) !important;
+    padding: 12px !important;
+  }
+
+  .chat-message-bubble {
+    max-width: 94% !important;
+  }
+
+  /* Floating NutriBot Button */
+  .floating-bot-btn {
+    bottom: 80px !important;
+    right: 16px !important;
+    width: 50px !important;
+    height: 50px !important;
+    font-size: 1.4rem !important;
+  }
+
+  /* Live Camera Modal Mobile */
+  .live-camera-card {
+    width: 95vw !important;
+    max-width: 95vw !important;
+    max-height: 92vh !important;
+    padding: 14px !important;
+  }
+
+  .camera-viewport-box {
+    height: 280px !important;
+  }
+}

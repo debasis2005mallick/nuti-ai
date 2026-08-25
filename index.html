@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>NutriScan AI — Student Food Intelligence & Hostel Meal Planner</title>
+  <meta name="description" content="AI-powered food scanner and hostel mess meal planning platform for college students. Scan your plate, understand nutrition, estimate costs, and optimize meals." />
+  <meta name="theme-color" content="#080C14" />
+
+  <!-- Google Fonts: Outfit & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <!-- App Stylesheets -->
+  <link rel="stylesheet" href="styles/main.css" />
+  <link rel="stylesheet" href="styles/components.css" />
+  <link rel="stylesheet" href="styles/desktop.css" />
+  <link rel="stylesheet" href="styles/mobile.css" />
+</head>
+<body>
+
+  <!-- Mobile Top App Bar (Visible on mobile/tablets) -->
+  <header class="mobile-top-bar">
+    <div class="mobile-brand-group">
+      <span class="brand-logo-icon">🥗</span>
+      <span class="mobile-brand-title">NutriScan AI</span>
+    </div>
+    <div class="mobile-top-actions">
+      <button class="mobile-top-btn" data-nav-tab="insights">📊 Insights</button>
+      <button class="mobile-top-btn" data-nav-tab="profile">⚙️ Profile</button>
+    </div>
+  </header>
+
+  <!-- Main App Shell -->
+  <div class="app-shell">
+    <!-- Desktop Sidebar Navigation -->
+    <aside class="sidebar-nav">
+      <div>
+        <!-- Brand Header -->
+        <div class="sidebar-brand-group">
+          <span class="brand-logo-icon">🥗</span>
+          <div class="brand-text">
+            <h2>NutriScan AI</h2>
+            <span>Student Intelligence</span>
+          </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <ul class="nav-links-list">
+          <li>
+            <button class="nav-item-btn" data-nav-tab="dashboard">
+              <span class="nav-item-icon">⚡</span>
+              <span>Dashboard</span>
+            </button>
+          </li>
+          <li>
+            <button class="nav-item-btn" data-nav-tab="scanner">
+              <span class="nav-item-icon">📸</span>
+              <span>Food Scanner</span>
+            </button>
+          </li>
+          <li>
+            <button class="nav-item-btn" data-nav-tab="hostel">
+              <span class="nav-item-icon">🏠</span>
+              <span>Hostel Mode</span>
+            </button>
+          </li>
+          <li>
+            <button class="nav-item-btn" data-nav-tab="planner">
+              <span class="nav-item-icon">🍽️</span>
+              <span>Meal Planner</span>
+            </button>
+          </li>
+          <li>
+            <button class="nav-item-btn" data-nav-tab="streaks">
+              <span class="nav-item-icon">🔥</span>
+              <span>Streaks & Habits</span>
+            </button>
+          </li>
+          <li>
+            <button class="nav-item-btn" data-nav-tab="insights">
+              <span class="nav-item-icon">📊</span>
+              <span>Weekly Insights</span>
+            </button>
+          </li>
+          <li>
+            <button class="nav-item-btn" data-nav-tab="chat">
+              <span class="nav-item-icon">🤖</span>
+              <span>NutriBot AI</span>
+            </button>
+          </li>
+          <li>
+            <button class="nav-item-btn" data-nav-tab="profile">
+              <span class="nav-item-icon">⚙️</span>
+              <span>Profile & Goals</span>
+            </button>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Mini Profile at Bottom of Sidebar -->
+      <div class="sidebar-footer-card">
+        <div class="user-mini-profile">
+          <span class="user-avatar">🎓</span>
+          <div>
+            <div class="user-meta-name">Alex (Hostel A)</div>
+            <div class="user-meta-role">Target: 2,200 kcal • ₹150/d</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Viewport Area (Where reactive views mount) -->
+    <main class="main-viewport" id="main-content-area">
+      <!-- Dynamic View Component Loaded Here -->
+    </main>
+  </div>
+
+  <!-- Mobile Fixed Bottom Navigation Bar (Visible on mobile/tablets) -->
+  <nav class="mobile-bottom-nav">
+    <button class="mobile-nav-item" data-nav-tab="dashboard">
+      <span class="nav-icon">⚡</span>
+      <span>Home</span>
+    </button>
+    <button class="mobile-nav-item" data-nav-tab="hostel">
+      <span class="nav-icon">🏠</span>
+      <span>Hostel</span>
+    </button>
+    <button class="mobile-nav-item mobile-nav-scanner-btn" data-nav-tab="scanner">
+      <span class="nav-icon">📸</span>
+      <span>Scan</span>
+    </button>
+    <button class="mobile-nav-item" data-nav-tab="planner">
+      <span class="nav-icon">🍽️</span>
+      <span>Plan</span>
+    </button>
+    <button class="mobile-nav-item" data-nav-tab="streaks">
+      <span class="nav-icon">🔥</span>
+      <span>Streaks</span>
+    </button>
+  </nav>
+
+  <!-- Floating NutriBot Trigger Button -->
+  <button id="floating-nutribot-btn" class="floating-bot-btn" title="Chat with NutriBot AI">
+    <span>🤖</span>
+    <span class="bot-unread-dot"></span>
+  </button>
+
+  <!-- Global Toast Notification Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Application Bootstrap -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
