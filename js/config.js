@@ -475,7 +475,7 @@ export const DEMO_MEAL_PLATES = {
     id: "demo-thali",
     title: "Classic Indian Hostel Thali",
     subtitle: "Rice + Yellow Dal + 2 Roti + Paneer Curry + Curd + Fresh Salad",
-    image: "assets/demo/indian_thali.jpg",
+    image: "https://images.unsplash.com/photo-1546833998-877b37c2e5c6?w=600&q=80",
     category: "Balanced Plate",
     foods: [
       { id: "rice", name: "Steamed Rice", portion: 150, unit: "g", confidence: 0.94 },
@@ -490,7 +490,7 @@ export const DEMO_MEAL_PLATES = {
     id: "demo-junk",
     title: "Hostel Night Canteen Combo",
     subtitle: "Instant Maggi + Potato Chips + Cold Soft Drink",
-    image: "assets/demo/indian_thali.jpg",
+    image: "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=600&q=80",
     category: "High Calorie / Low Protein",
     foods: [
       { id: "maggi", name: "Instant Maggi Noodles", portion: 1, unit: "pack", confidence: 0.96 },
@@ -502,7 +502,7 @@ export const DEMO_MEAL_PLATES = {
     id: "demo-gym",
     title: "High Protein Mess Plate",
     subtitle: "2 Boiled Eggs + Soya Curry + 2 Roti + Curd + Salad",
-    image: "assets/demo/indian_thali.jpg",
+    image: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=600&q=80",
     category: "High Protein",
     foods: [
       { id: "eggs_boiled", name: "Boiled Eggs (2 pcs)", portion: 2, unit: "piece", confidence: 0.95 },
