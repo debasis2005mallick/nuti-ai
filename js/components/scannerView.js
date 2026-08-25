@@ -53,16 +53,23 @@ export class ScannerView {
               <div class="plate-preview-box">
                 <img id="scanned-plate-img" src="${this.currentImageSrc}" alt="Scanned Food Plate" class="plate-img" />
                 
-                <!-- Floating Computer Vision Food Tags Overlay -->
-                <div class="plate-vision-tags-overlay">
-                  ${(this.currentScanResult.foods || []).slice(0, 4).map((f, i) => `
-                    <div class="floating-vision-tag tag-pos-${i}" data-food-idx="${i}">
-                      <span class="tag-pulse-dot"></span>
-                      <span class="tag-title">${f.name}</span>
-                      <span class="tag-cal">${f.calories} kcal</span>
-                    </div>
-                  `).join('')}
-                </div>
+                ${this.currentScanResult.isNonFood ? `
+                  <div class="non-food-alert-badge animate-fade-in">
+                    <span>⚠️ No Food Detected in Image</span>
+                    <small>Please upload or scan a food plate, thali, or snack</small>
+                  </div>
+                ` : `
+                  <!-- Floating Computer Vision Food Tags Overlay -->
+                  <div class="plate-vision-tags-overlay">
+                    ${(this.currentScanResult.foods || []).slice(0, 4).map((f, i) => `
+                      <div class="floating-vision-tag tag-pos-${i}" data-food-idx="${i}">
+                        <span class="tag-pulse-dot"></span>
+                        <span class="tag-title">${f.name}</span>
+                        <span class="tag-cal">${f.calories} kcal</span>
+                      </div>
+                    `).join('')}
+                  </div>
+                `}
 
                 <div id="scanner-progress-overlay" class="scanner-overlay hidden">
                   <div class="spinner-ring"></div>

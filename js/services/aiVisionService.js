@@ -43,9 +43,31 @@ export class AiVisionService {
       // Run client-side visual pixel & color segmentation analyzer
       const visualAnalysis = await this.analyzeImagePixels(imageDataOrFile);
       
+      // If detected as non-food image (like stairs, room, text, furniture)
+      if (visualAnalysis.isNonFood) {
+        onProgress("Checking food content...", 100);
+        return {
+          isNonFood: true,
+          health_score: 0,
+          health_category: "No Food Detected",
+          meal_summary: "No food items or meal plate were detected in this image. Please frame your plate, thali, or snack within the camera viewfinder.",
+          doing_well: ["Image captured clearly"],
+          to_improve: ["Point your camera directly at a food plate or hostel mess dish", "Use one of the 1-Click Demo Presets (Thali / Maggi / Gym) above to test"],
+          foods: [],
+          total: {
+            calories: 0,
+            protein_g: 0,
+            carbs_g: 0,
+            fat_g: 0,
+            fiber_g: 0,
+            estimated_cost: 0
+          }
+        };
+      }
+
       // Enrich with live Open Food Facts online dataset
       onProgress("Querying Open Food Facts global online database...", 80);
-      const enriched = await OnlineNutritionService.enrichFoodsWithOnlineDataset(visualAnalysis, onProgress);
+      const enriched = await OnlineNutritionService.enrichFoodsWithOnlineDataset(visualAnalysis.foods || visualAnalysis, onProgress);
 
       onProgress("Finalizing health score & recommendations...", 100);
       const result = NutritionEngine.calculatePlateNutrition(enriched);
@@ -53,25 +75,23 @@ export class AiVisionService {
       return result;
     } catch (err) {
       console.error("Analysis error:", err);
-      // Fallback plate so UI never breaks
       return NutritionEngine.calculatePlateNutrition(DEMO_MEAL_PLATES.thali.foods);
     }
   }
 
   /**
    * Client-Side Visual Pixel & Color Analyzer
-   * Samples the image onto a hidden canvas, measures color distribution (Yellowness, Greenness, Red/Orange, Whiteness, Darkness),
-   * and dynamically constructs a realistic, unique multi-food plate matching the actual photo!
+   * Evaluates image chroma, neutral grey levels, and color segmentation to distinguish food plates from non-food objects.
    */
   static async analyzeImagePixels(imageDataOrFile) {
     return new Promise((resolve) => {
       // Check if string contains demo keywords first
       const nameStr = (typeof imageDataOrFile === 'string' ? imageDataOrFile : (imageDataOrFile?.name || '')).toLowerCase();
       if (nameStr.includes("junk") || nameStr.includes("maggi") || nameStr.includes("chips")) {
-        return resolve(DEMO_MEAL_PLATES.junk.foods);
+        return resolve({ isNonFood: false, foods: DEMO_MEAL_PLATES.junk.foods });
       }
       if (nameStr.includes("gym") || (nameStr.includes("protein") && !nameStr.startsWith("data:"))) {
-        return resolve(DEMO_MEAL_PLATES.gym.foods);
+        return resolve({ isNonFood: false, foods: DEMO_MEAL_PLATES.gym.foods });
       }
 
       // If it's an image data URL, analyze actual canvas pixels
@@ -88,88 +108,90 @@ export class AiVisionService {
           ctx.drawImage(img, 0, 0, 100, 100);
 
           const imgData = ctx.getImageData(0, 0, 100, 100).data;
-          let rTotal = 0, gTotal = 0, bTotal = 0;
           let yellowCount = 0, greenCount = 0, orangeRedCount = 0, whiteCount = 0, darkBrownCount = 0;
+          let neutralGreyCount = 0;
 
           for (let i = 0; i < imgData.length; i += 4) {
             const r = imgData[i];
             const g = imgData[i + 1];
             const b = imgData[i + 2];
-            rTotal += r;
-            gTotal += g;
-            bTotal += b;
 
-            // Color classification
-            if (r > 160 && g > 130 && b < 100) {
+            const maxChannel = Math.max(r, g, b);
+            const minChannel = Math.min(r, g, b);
+            const saturation = maxChannel === 0 ? 0 : (maxChannel - minChannel) / maxChannel;
+
+            // Detect non-food grey / concrete / chalkboard / background pixels
+            if (saturation < 0.18 || (maxChannel - minChannel < 25)) {
+              neutralGreyCount++;
+            }
+
+            // Food color classification
+            if (r > 160 && g > 130 && b < 100 && saturation >= 0.25) {
               yellowCount++; // Dal, Curry, Turmeric rice, Poha
-            } else if (g > r && g > b && g > 70) {
+            } else if (g > r && g > b && g > 70 && saturation >= 0.2) {
               greenCount++; // Salad, Palak, Green Veggies
-            } else if (r > 150 && g < 120 && b < 100) {
-              orangeRedCount++; // Paneer Gravy, Rajma, Chole, Chicken, Tomato
-            } else if (r > 180 && g > 180 && b > 180) {
-              whiteCount++; // Rice, Curd, Idli, Dahi, Boiled Eggs
-            } else if (r < 110 && g < 90 && b < 80) {
-              darkBrownCount++; // Roti, Chapati, Lentils, Fried snacks
+            } else if (r > 150 && g < 130 && b < 100 && saturation >= 0.25) {
+              orangeRedCount++; // Paneer Gravy, Rajma, Chole
+            } else if (r > 180 && g > 180 && b > 180 && saturation < 0.15) {
+              whiteCount++; // Rice, Curd, Idli
+            } else if (r < 120 && g < 100 && b < 80 && saturation >= 0.2) {
+              darkBrownCount++; // Roti, Chapati, Cooked Lentils
             }
           }
 
           const totalPixels = 10000;
+          const neutralRatio = neutralGreyCount / totalPixels;
           const yellowRatio = yellowCount / totalPixels;
           const greenRatio = greenCount / totalPixels;
           const orangeRatio = orangeRedCount / totalPixels;
           const whiteRatio = whiteCount / totalPixels;
           const brownRatio = darkBrownCount / totalPixels;
+          const totalFoodChroma = yellowRatio + greenRatio + orangeRatio + brownRatio;
+
+          // Non-Food Guard: If image is overwhelmingly neutral/grey/staircase/wall with no food composition
+          if (neutralRatio > 0.70 && totalFoodChroma < 0.10) {
+            return resolve({ isNonFood: true, foods: [] });
+          }
 
           // Build dynamic plate tailored to detected colors
           const detectedPlate = [];
 
-          // 1. Grains / Staples (Rice or Roti based on Whiteness / Brownness)
           if (whiteRatio > 0.15 || yellowRatio > 0.2) {
             detectedPlate.push({ id: "rice", name: "Steamed Rice", portion: Math.round(140 + whiteRatio * 50), unit: "g", confidence: 0.93 });
           }
-          if (brownRatio > 0.12 || detectedPlate.length === 0) {
+          if (brownRatio > 0.10 || detectedPlate.length === 0) {
             detectedPlate.push({ id: "roti", name: "Roti / Chapati", portion: 2, unit: "piece", confidence: 0.95 });
           }
-
-          // 2. Lentils / Curries (Yellow Dal vs Rajma vs Paneer vs Chole)
-          if (yellowRatio > 0.08) {
+          if (yellowRatio > 0.06) {
             detectedPlate.push({ id: "dal", name: "Yellow Dal Tadka", portion: Math.round(130 + yellowRatio * 40), unit: "g", confidence: 0.91 });
           }
-          if (orangeRatio > 0.08) {
-            if (orangeRatio > 0.18) {
+          if (orangeRatio > 0.06) {
+            if (orangeRatio > 0.16) {
               detectedPlate.push({ id: "paneer", name: "Paneer Sabzi / Curry", portion: 120, unit: "g", confidence: 0.89 });
             } else {
               detectedPlate.push({ id: "rajma", name: "Rajma Masala", portion: 150, unit: "g", confidence: 0.88 });
             }
           }
-
-          // 3. Vegetables / Salad (Green Presence)
-          if (greenRatio > 0.05) {
+          if (greenRatio > 0.04) {
             detectedPlate.push({ id: "salad", name: "Fresh Green Salad", portion: 80, unit: "g", confidence: 0.92 });
-          } else {
-            detectedPlate.push({ id: "mixed_veg", name: "Mixed Vegetable Sabzi", portion: 110, unit: "g", confidence: 0.86 });
           }
-
-          // 4. Dairy / Side (Curd if white highlights)
           if (whiteRatio > 0.10 && detectedPlate.length < 5) {
             detectedPlate.push({ id: "curd", name: "Plain Curd / Dahi", portion: 100, unit: "g", confidence: 0.90 });
           }
 
-          // Ensure at least 3 distinct balanced items
-          if (detectedPlate.length < 3) {
-            detectedPlate.push({ id: "dal", name: "Yellow Dal Tadka", portion: 150, unit: "g", confidence: 0.89 });
-            detectedPlate.push({ id: "salad", name: "Fresh Green Salad", portion: 75, unit: "g", confidence: 0.87 });
+          if (detectedPlate.length < 2) {
+            return resolve({ isNonFood: true, foods: [] });
           }
 
-          resolve(detectedPlate);
+          resolve({ isNonFood: false, foods: detectedPlate });
         } catch (e) {
-          console.warn("Canvas pixel extraction failed, fallback to default thali:", e);
-          resolve(DEMO_MEAL_PLATES.thali.foods);
+          console.warn("Canvas pixel extraction failed:", e);
+          resolve({ isNonFood: false, foods: DEMO_MEAL_PLATES.thali.foods });
         }
       };
 
       img.onerror = () => {
-        resolve(DEMO_MEAL_PLATES.thali.foods);
+        resolve({ isNonFood: true, foods: [] });
       };
     });
   }
